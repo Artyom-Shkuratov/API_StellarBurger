@@ -39,7 +39,7 @@ class GeneratorData:
         return payload
     
     
-    class User:
+class User:
         
         @staticmethod
         @allure.step("Регистрация пользователя")
@@ -98,7 +98,7 @@ class GeneratorData:
                 return requests.delete(url=Urls.DELETE_USER, headers=headers)
             return login_response
         
-    class Order:
+class Order:
         
         @staticmethod
         @allure.step("Создание заказа")
@@ -131,6 +131,6 @@ class GeneratorData:
                 return requests.get(f'{Urls.USER_ORDERS}')
         
         @staticmethod
-        @allure.step("Изменение хеша ингредиентов (обрезка последнего символа)")
+        @allure.step("Изменение хеша ингредиентов")
         def modify_ingredient_hashes(ingredients):
             return [hash_[:-1] for hash_ in ingredients]
