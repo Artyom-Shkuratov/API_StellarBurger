@@ -66,7 +66,7 @@ class User:
         @staticmethod
         @allure.step("Изменение данных пользователя")
         def update_user_data(user_data):
-            login_response = GeneratorData.User.login_user(user_data)
+            login_response = GeneratorData.login_user(user_data)
             token = login_response.json().get("accessToken")
             headers = {"Authorization": token}
             
