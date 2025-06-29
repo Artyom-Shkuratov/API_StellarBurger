@@ -1,14 +1,13 @@
 import random
 import pytest
-import allure
 from helpers import GeneratorData, User, Order
 
 
-pytest.fixture
+@pytest.fixture
 def registered_user():
         random_user_data = GeneratorData.generate_payload()
-        response = User.register_user(random_user_data)
-        yield response, random_user_data
+        User.register_user(random_user_data)
+        yield random_user_data
         User.delete_user(random_user_data)
         
         
