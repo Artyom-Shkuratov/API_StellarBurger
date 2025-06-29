@@ -91,7 +91,7 @@ class User:
         @staticmethod
         @allure.step("Удаление пользователя после теста")
         def delete_user(user_data):
-            login_response = GeneratorData.User.login_user(user_data)
+            login_response = User.login_user(user_data)
             if login_response.status_code == 200:
                 token = login_response.json().get("accessToken")
                 headers = {"Authorization": token}
@@ -118,7 +118,7 @@ class Order:
         @allure.step("Получение списка ингредиентов")
         def get_ingredients_list():
             response = requests.get(f'{Urls.INGREDIENTS}')
-            return response.json()['data', []]
+            return response.json().get('data', [])
         
         @staticmethod
         @allure.step("Получение списка заказов конкретного пользователя")
