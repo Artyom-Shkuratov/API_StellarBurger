@@ -50,7 +50,7 @@ class User:
         @staticmethod
         @allure.step("Создание пользователя без обязательного поля: {missing_field}")
         def register_user_without_required_field(missing_field):
-            user_data = GeneratorData.generate_user()
+            user_data = GeneratorData.generate_payload()
             user_data.pop(missing_field, None) 
             response = requests.post(url=Urls.CREATE_USER, json=user_data)
             return response
