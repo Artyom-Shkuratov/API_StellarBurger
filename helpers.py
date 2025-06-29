@@ -66,7 +66,7 @@ class User:
         @staticmethod
         @allure.step("Изменение данных пользователя")
         def update_user_data(user_data):
-            login_response = GeneratorData.login_user(user_data)
+            login_response = User.login_user(user_data)
             token = login_response.json().get("accessToken")
             headers = {"Authorization": token}
             
@@ -75,7 +75,7 @@ class User:
                 "name": GeneratorData.generate_name()
             }
 
-            response = requests.patch(Urls.EDIT_USER, headers=headers, json=updated_data)
+            response = requests.patch(Urls.USER_DATA, headers=headers, json=updated_data)
             return response
         
         @staticmethod
