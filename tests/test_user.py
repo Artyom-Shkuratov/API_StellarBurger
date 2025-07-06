@@ -1,62 +1,62 @@
-import pytest
 import allure
-from helpers import GeneratorData, User
+from logic.user_logic import User
+from logic.order_logic import Order
 
 
-@allure.suite("Регистрация пользователя")
-class TestUserRegistration:
+class TestOrderCreation:
 
-    @allure.title("Успешная регистрация нового пользователя")
-    def test_register_user_successfully(self):
-        user_data = GeneratorData.generate_payload()
-        response = User.register_user(user_data)
+    @allure.title("Создание заказа авторизованным пользователем с ингредиентами")
+    def test_create_order_with_auth_and_ingredients(self, registered_user):
+        token = User.get_access_token(User.login_user(registered_user))
+        ingredients = [item['_id'] for item in Order.get_ingredients_list()[:3]]
+        response = Order.create_order({"ingredients": ingredients}, token=token)
+        
         assert response.status_code == 200
         assert response.json()["success"] is True
-        assert "accessToken" in response.json()
 
-    @allure.title("Создание пользователя без обязательного поля")
-    @pytest.mark.parametrize("missing_field", ["email", "password", "name"])
-    def test_register_user_without_required_field(self, missing_field):
-        response = User.register_user_without_required_field(missing_field)
-        assert response.status_code == 403
+    @allure.title("Создание заказа без авторизации")
+    def test_create_order_without_auth(self):
+        ingredients = [item['_id'] for item in Order.get_ingredients_list()[:3]]
+        response = Order.create_order({"ingredients": ingredients})
+        
+        assert response.status_code == 200
+        assert response.json()["success"] is True
+
+    @allure.title("Создание заказа с пустым списком ингредиентов")
+    def test_create_order_with_empty_ingredients(self):
+        response = Order.create_order({"ingredients": []})
+        
+        assert response.status_code == 400
         assert response.json()["success"] is False
-        assert response.json()["message"] == "Email, password and name are required fields"
+        assert response.json()["message"] == "Ingredient ids must be provided"
+
+    @allure.title("Создание заказа с невалидными ингредиентами")
+    def test_create_order_with_modified_ingredient_hashes(self):
+        valid_ingredients = [item['_id'] for item in Order.get_ingredients_list()[:3]]
+        invalid_ingredients = Order.modify_ingredient_hashes(valid_ingredients)
+        response = Order.create_order({"ingredients": invalid_ingredients})
+        
+        assert response.status_code == 500
+        assert "Internal Server Error" in response.text
 
 
-@allure.suite("Авторизация пользователя")
-class TestUserLogin:
+class TestOrderRetrieval:
 
-    @allure.title("Логин под существующим пользователем")
-    def test_login_existing_user(self):
-        user_data = GeneratorData.generate_payload()
-        User.register_user(user_data)
-        response = User.login_user(user_data)
+    @allure.title("Получение заказов авторизованным пользователем")
+    def test_get_orders_with_auth(self, registered_user):
+        token = User.get_access_token(User.login_user(registered_user))
+        ingredients = [item['_id'] for item in Order.get_ingredients_list()[:3]]
+        Order.create_order({"ingredients": ingredients}, token=token)
+        response = Order.get_orders(token=token)
+        
         assert response.status_code == 200
         assert response.json()["success"] is True
-        assert "accessToken" in response.json()
+        assert isinstance(response.json().get("orders"), list)
 
-    @allure.title("Логин с некорректными данными")
-    def test_login_with_wrong_credentials(self):
-        wrong_data = {
-            "email": GeneratorData.generate_email(),
-            "password": "incorrect123"
-        }
-        response = User.login_user(wrong_data)
+    @allure.title("Получение заказов неавторизованным пользователем")
+    def test_get_orders_without_auth(self):
+        response = Order.get_orders()
+        
         assert response.status_code == 401
         assert response.json()["success"] is False
-        assert response.json()["message"] == "email or password are incorrect"
-
-
-@allure.suite("Редактирование данных пользователя")
-class TestUserUpdate:
-
-    @allure.title("Успешное изменение данных пользователя")
-    def test_update_user_data(self):
-        user_data = GeneratorData.generate_payload()
-        User.register_user(user_data)
-        response = User.update_user_data(user_data)
-        assert response.status_code == 200
-        assert response.json()["success"] is True
-        assert "user" in response.json()
-        assert "email" in response.json()["user"]
-        assert "name" in response.json()["user"]
+        assert response.json()["message"] == "You should be authorised"

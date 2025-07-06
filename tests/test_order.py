@@ -1,6 +1,6 @@
-import pytest
 import allure
-from helpers import GeneratorData, User, Order
+from logic.user_logic import User
+from logic.order_logic import Order
 
 
 class TestOrderCreation:
@@ -27,7 +27,7 @@ class TestOrderCreation:
         response = Order.create_order({"ingredients": []})
         
         assert response.status_code == 400
-        assert response.json()["success"] == False
+        assert response.json()["success"] is False
         assert response.json()["message"] == "Ingredient ids must be provided"
 
     @allure.title("Создание заказа с невалидными ингредиентами")
@@ -38,6 +38,8 @@ class TestOrderCreation:
         
         assert response.status_code == 500
         assert "Internal Server Error" in response.text
+
+
 class TestOrderRetrieval:
 
     @allure.title("Получение заказов авторизованным пользователем")
@@ -46,6 +48,7 @@ class TestOrderRetrieval:
         ingredients = [item['_id'] for item in Order.get_ingredients_list()[:3]]
         Order.create_order({"ingredients": ingredients}, token=token)
         response = Order.get_orders(token=token)
+        
         assert response.status_code == 200
         assert response.json()["success"] == True
         assert isinstance(response.json().get("orders"), list)
@@ -55,5 +58,5 @@ class TestOrderRetrieval:
         response = Order.get_orders()
         
         assert response.status_code == 401
-        assert response.json()["success"] ==  False
+        assert response.json()["success"] == False
         assert response.json()["message"] == "You should be authorised"
