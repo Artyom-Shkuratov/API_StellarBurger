@@ -1,0 +1,1 @@
+{'success': True, 'accessToken': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjEzMGEyOWVkMjgwMDAxYjYzYzEwMSIsImlhdCI6MTc1MTE5OTkwNiwiZXhwIjoxNzUxMjAxMTA2fQ.beLrNBlrOO0b8CzPS5FPOOcUHFR07weJyz2OJNUjtck', 'refreshToken': '4d6ae68e9cfd20d998381cb64de2ec2204f0dcd0d0f543bb31463e98b0d59386baa523fee75f60a6', 'user': {'email': 'wnif2ef9@gmail.com', 'name': 'Hailey'}}
